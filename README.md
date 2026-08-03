@@ -1,8 +1,10 @@
 # Australian Public Health Mortality Analysis
 
-**SQL · SQLite · DBeaver · Public Health Analytics**
+**SQL · SQLite · DBeaver · Public Health Analytics · AI-Augmented Dashboarding**
 
 A structured SQL analysis of mortality trends across Australian states and territories, using official data from the Australian Institute of Health and Welfare (AIHW). This project simulates a data analytics engagement for a public health department, identifying regional disparities in mortality rates, premature deaths, and leading causes of death to support resource allocation decisions.
+
+This project now has two phases: the original SQL analysis (below), and an **AI-augmented extension** that turns the query output into a shareable, interactive dashboard — see [Phase 2](#phase-2--ai-augmented-analysis--dashboard) for how and why.
 
 > **Data Source:** AIHW MORT Books (Mortality Over Regions and Time), 2019–2023. Available at [data.gov.au](https://data.gov.au/data/dataset/mort-books). Data covers State and Territory level only (scope decision made at project outset to maintain analytical focus).
 
@@ -141,7 +143,7 @@ GROUP BY m.state, l.cause_of_death
 ORDER BY premature_death_rate_per_100k DESC;
 ```
 
-**Finding:** Coronary heart disease is the leading cause of premature death in 8 out of 10 states and territories — a consistent national pattern. The two exceptions are South Australia and the ACT, where Dementia/Alzheimer's disease ranks first, reflecting older population profiles where people survive long enough to develop degenerative conditions before dying.
+**Finding:** Coronary heart disease is the leading cause of premature death in 6 of the 8 states and territories — a consistent national pattern. The two exceptions are South Australia and the ACT, where Dementia/Alzheimer's disease ranks first, reflecting older population profiles where people survive long enough to develop degenerative conditions before dying.
 
 ---
 
@@ -152,7 +154,7 @@ ORDER BY premature_death_rate_per_100k DESC;
 | NT median age at death is 67 — 15 years below SA | Severe health inequity; strongest case for targeted intervention |
 | NT premature death rate is double the ACT | Population-adjusted metrics reveal what absolute counts hide |
 | 2022 mortality spike in Victoria | Post-pandemic rebound effect; deferred care has measurable consequences |
-| Coronary heart disease leads in 8/10 states | Cardiovascular prevention programs have national relevance |
+| Coronary heart disease leads in 6/8 states | Cardiovascular prevention programs have national relevance |
 | Tasmania has highest crude rate but good median age | High crude rate reflects aging population, not poor health outcomes |
 
 ---
@@ -168,12 +170,41 @@ ORDER BY premature_death_rate_per_100k DESC;
 | Calculated columns with `AS` alias | Query 5–6 |
 | `JOIN` across two tables | Query 6 |
 
+---
+
+## Phase 2 — AI-Augmented Analysis & Dashboard
+
+The SQL analysis above was the source of truth for a second phase: turning six static queries into a single interactive artifact, built in collaboration with **Claude** (Anthropic).
+
+### What Claude did
+
+1. **Read the analysis in place.** Rather than re-exporting data, Claude was pointed at this GitHub repository directly and pulled `analysis.sql`, `mortality_summary.csv`, and `leading_causes.csv` from the live source — no manual copy-paste.
+2. **Recomputed every aggregate independently.** Each figure quoted in this README (average median age, total and population-adjusted premature deaths, leading cause per state) was recalculated from the raw 150-row dataset and cross-checked against the numbers stated here, catching one rounding/scope discrepancy in the original "8 of 10 states" claim (corrected above to 6 of 8 real jurisdictions — the original count included the national total and "Other Territories" rows).
+3. **Designed and built an interactive HTML dashboard** covering all six queries: a Victoria mortality trend line chart, ranked bar charts for crude rate, median age, and premature deaths (with a toggle between absolute counts and population-adjusted rates — the key insight from Queries 4–5), a leading-cause-of-death card grid per state, hover tooltips on every chart, a light/dark mode toggle, and a full data table for accessibility.
+4. **Applied a brand-constrained, accessibility-validated colour system.** The dashboard uses Australia's official national colours (Pantone 348C green, Pantone 116C gold) as its palette. Because the literal gold hex fails standard contrast/legibility checks as a data-fill colour, Claude derived a deepened "chart-safe" gold for bars and marks while preserving the exact Pantone hex for branding elements — then validated both the light and dark palettes against colour-vision-deficiency and contrast standards before shipping.
+5. **Packaged the result as a persistent artifact** — a self-contained HTML file with no external dependencies, saved to a personal artifact gallery so it can be reopened, updated, or shared without re-running anything.
+
+### Why this matters
+
+This phase demonstrates a workflow that's increasingly relevant for analysts: SQL and domain judgment define *what's true*; an AI collaborator handles the mechanical, time-consuming translation of that truth into something stakeholders will actually read — while still being auditable, since every chart traces back to a query in this file and every number was independently recomputed rather than trusted at face value.
+
+### Potential uses
+
+- **Portfolio / interview artifact.** A live, interactive piece that's easier for a hiring manager to engage with in 30 seconds than six SQL blocks and a bullet list of findings.
+- **Stakeholder communication.** A public health department could hand this dashboard — not the raw SQL output — to non-technical decision-makers, letting them toggle between absolute and adjusted views themselves.
+- **Resource allocation input.** The population-adjusted premature death rate view is directly actionable: it's the metric that should drive where intervention funding goes, and it's one click away from the misleading absolute-count view.
+- **Template for other regions/datasets.** The same read → verify → visualize → brand-constrain workflow generalizes to any SQL-backed public health dataset — state-level data from other countries, disease-specific registries, hospital admissions data, etc.
+- **Teaching material.** A concrete example of pairing SQL rigor with AI-assisted delivery, useful for demonstrating this workflow to other analysts or students.
+
+---
+
 ## Repository Structure
 
 ```
 ├── analysis.sql              # All 6 queries with business context and findings
 ├── mortality_summary.csv     # Cleaned dataset: mortality statistics by state/year/sex
 ├── leading_causes.csv        # Cleaned dataset: top 20 causes of death by state/sex
+├── dashboard.html            # Phase 2 — interactive AI-built dashboard (self-contained, open in any browser)
 └── README.md
 ```
 
