@@ -6,6 +6,8 @@ A structured SQL analysis of mortality trends across Australian states and terri
 
 This project now has two phases: the original SQL analysis (below), and an **AI-augmented extension** that turns the query output into a shareable, interactive dashboard — see [Phase 2](#phase-2--ai-augmented-analysis--dashboard) for how and why.
 
+📊 **[Open the interactive dashboard](dashboard.html)** (download and open in any browser — GitHub shows HTML as source code, not as a page) · 📄 **[View the static PDF version](AustralianMortalityDashboard.pdf)** (renders directly in GitHub, same content, no interactivity)
+
 > **Data Source:** AIHW MORT Books (Mortality Over Regions and Time), 2019–2023. Available at [data.gov.au](https://data.gov.au/data/dataset/mort-books). Data covers State and Territory level only (scope decision made at project outset to maintain analytical focus).
 
 ---
@@ -178,7 +180,7 @@ The SQL analysis above was the source of truth for a second phase: turning six s
 
 ### What Claude did
 
-1. **Read the analysis in place.** Rather than re-exporting data, Claude was pointed at this GitHub repository directly and pulled `analysis.sql`, `mortality_summary.csv`, and `leading_causes.csv` from the live source — no manual copy-paste.
+1. **Read the analysis in place.** Rather than re-exporting data, Claude was pointed at this GitHub repository directly and pulled `sql/analysis.sql`, `data/mortality_summary.csv`, and `data/leading_causes.csv` from the live source — no manual copy-paste.
 2. **Recomputed every aggregate independently.** Each figure quoted in this README (average median age, total and population-adjusted premature deaths, leading cause per state) was recalculated from the raw 150-row dataset and cross-checked against the numbers stated here, catching one rounding/scope discrepancy in the original "8 of 10 states" claim (corrected above to 6 of 8 real jurisdictions — the original count included the national total and "Other Territories" rows).
 3. **Designed and built an interactive HTML dashboard** covering all six queries: a Victoria mortality trend line chart, ranked bar charts for crude rate, median age, and premature deaths (with a toggle between absolute counts and population-adjusted rates — the key insight from Queries 4–5), a leading-cause-of-death card grid per state, hover tooltips on every chart, a light/dark mode toggle, and a full data table for accessibility.
 4. **Applied a brand-constrained, accessibility-validated colour system.** The dashboard uses Australia's official national colours (Pantone 348C green, Pantone 116C gold) as its palette. Because the literal gold hex fails standard contrast/legibility checks as a data-fill colour, Claude derived a deepened "chart-safe" gold for bars and marks while preserving the exact Pantone hex for branding elements — then validated both the light and dark palettes against colour-vision-deficiency and contrast standards before shipping.
@@ -201,10 +203,14 @@ This phase demonstrates a workflow that's increasingly relevant for analysts: SQ
 ## Repository Structure
 
 ```
-├── analysis.sql              # All 6 queries with business context and findings
-├── mortality_summary.csv     # Cleaned dataset: mortality statistics by state/year/sex
-├── leading_causes.csv        # Cleaned dataset: top 20 causes of death by state/sex
-├── dashboard.html            # Phase 2 — interactive AI-built dashboard (self-contained, open in any browser)
+├── sql/
+│   └── analysis.sql                    # All 6 queries with business context and findings
+├── data/
+│   ├── mortality_summary.csv           # Cleaned dataset: mortality statistics by state/year/sex
+│   └── leading_causes.csv              # Cleaned dataset: top 20 causes of death by state/sex
+├── dashboard.html                      # Phase 2 — interactive AI-built dashboard (download and open in any browser)
+├── AustralianMortalityDashboard.pdf    # Phase 2 — static companion, renders directly on GitHub
+├── .gitattributes                      # Marks dashboard.html as generated (excluded from language stats)
 └── README.md
 ```
 
@@ -212,3 +218,4 @@ This phase demonstrates a workflow that's increasingly relevant for analysts: SQ
 
 **Cesar Pazo** — Data Analyst, Melbourne, Australia
 📧 cesaralberto.pazo@gmail.com
+
